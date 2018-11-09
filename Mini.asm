@@ -1,10 +1,10 @@
 ;*******************************************************************************
 ;                                                                              *
 ;    Filename:    Serial.asm
-;    Autor: JosÈ Eduardo Morales					
-;    Description: EJEMPLO de serial y ADC                                      *
-;   El cÛdigo convierte un valor del adc y lo guarda en el puerto b. A la vez
-;   lo envÌa a travÈs del TX. TambiÈn recibe un dato y este lo muestra en el 
+;    Autor: Rodrigo F Stefan S					
+;    Description: Mini Projecto                                     *
+;   El c√≥digo convierte un valor del adc y lo guarda en el puerto b. A la vez
+;   lo env√≠a a trav√©s del TX. Tambi√©n recibe un dato y este lo muestra en el 
 ;   puerto d. Para ver funcionar ambos se puede colocar un jumper entre rx y tx
 ;*******************************************************************************
 #include "p16f887.inc"
@@ -78,7 +78,7 @@ START
     CALL    CONFIG_TX_RX		; 10417hz
     CALL    CONFIG_ADC			; canal 0, fosc/8, adc on, justificado a la izquierda, Vref interno (0-5V)
     CALL    CONFIG_PWM
-    ;CALL    CONFIG_OSCILATOR
+    CALL    CONFIG_OSCILATOR
     BANKSEL PORTA
 ;*******************************************************************************
    
@@ -87,9 +87,9 @@ START
 ;*******************************************************************************
 LOOP:
     CALL    DELAY_50MS
-    BSF	    ADCON0, GO		    ; EMPIEZA LA CONVERSI”N
+    BSF	    ADCON0, GO		    ; EMPIEZA LA CONVERSI√ìN
 CHECK_AD:
-    BTFSC   ADCON0, GO			; revisa que terminÛ la conversiÛn
+    BTFSC   ADCON0, GO			; revisa que termin√≥ la conversi√≥n
     GOTO    $-1
     BCF	    PIR1, ADIF			; borramos la bandera del adc
     ;RRF	    ADRESH, F		
@@ -108,7 +108,7 @@ CHECK_RCIF:			    ; RECIBE EN RX y lo muestra en PORTD
         
     
 CHECK_TXIF: 
-    MOVFW   PORTB		    ; ENVÕA PORTB POR EL TX
+    MOVFW   PORTB		    ; ENV√çA PORTB POR EL TX
     MOVWF   TXREG
    
     BTFSS   PIR1, TXIF
@@ -117,7 +117,7 @@ CHECK_TXIF:
     MOVWF PORTD
     
 PROBAR_SERVO:
-    MOVLW .254
+    MOVFW TEMP
     MOVWF  CCPR2L
     GOTO LOOP
     
@@ -138,18 +138,18 @@ CONFIG_RELOJ
  ;--------------------------------------------------------
 CONFIG_TX_RX
     BANKSEL TXSTA
-    BCF	    TXSTA, SYNC		    ; ASINCR”NO
+    BCF	    TXSTA, SYNC		    ; ASINCR√ìNO
     BSF	    TXSTA, BRGH		    ; LOW SPEED
     BANKSEL BAUDCTL
     BSF	    BAUDCTL, BRG16	    ; 8 BITS BAURD RATE GENERATOR
     BANKSEL SPBRG
-    MOVLW   .25	    
-    MOVWF   SPBRG		    ; CARGAMOS EL VALOR DE BAUDRATE CALCULADO
+    MOVLW   .12	    
+    MOVWF   SPBRG		    ; CARGAMOS EL VALOR DE BAUDRATE CALCULADO, 2403 baudios a 500Khz
     CLRF    SPBRGH
     BANKSEL RCSTA
     BSF	    RCSTA, SPEN		    ; HABILITAR SERIAL PORT
     BCF	    RCSTA, RX9		    ; SOLO MANEJAREMOS 8BITS DE DATOS
-    BSF	    RCSTA, CREN		    ; HABILITAMOS LA RECEPCI”N 
+    BSF	    RCSTA, CREN		    ; HABILITAMOS LA RECEPCI√ìN 
     BANKSEL TXSTA
     BSF	    TXSTA, TXEN		    ; HABILITO LA TRANSMISION
     
@@ -193,16 +193,16 @@ CONFIG_ADC
     BCF ADCON0, CHS1
     BCF ADCON0, CHS0	
     BANKSEL TRISA
-    BCF ADCON1, ADFM		; JUSTIFICACI”N A LA IZQUIERDA
+    BCF ADCON1, ADFM		; JUSTIFICACI√ìN A LA IZQUIERDA
     BCF ADCON1, VCFG1		; VSS COMO REFERENCIA VREF-
     BCF ADCON1, VCFG0		; VDD COMO REFERENCIA VREF+
     BANKSEL PORTA
-    BSF ADCON0, ADON		; ENCIENDO EL M”DULO ADC
+    BSF ADCON0, ADON		; ENCIENDO EL M√ìDULO ADC
     
     BANKSEL TRISA
     BSF	    TRISA, RA0		; RA0 COMO ENTRADA
     BANKSEL ANSEL
-    BSF	    ANSEL, 0		; ANS0 COMO ENTRADA ANAL”GICA
+    BSF	    ANSEL, 0		; ANS0 COMO ENTRADA ANAL√ìGICA
     
     RETURN
 ;-----------------------------------------------
@@ -210,7 +210,7 @@ CONFIG_PWM
     BANKSEL TRISC
     BSF	    TRISC, RC1		; ESTABLEZCO RC1 / CCP2 COMO ENTRADA
     MOVLW   .155
-    MOVWF   PR2			    ; COLOCO EL VALOR DEL PERIODO DE MI SE√ëAL 20mS
+    MOVWF   PR2			    ; COLOCO EL VALOR DEL PERIODO DE MI SE√É¬ëAL 20mS
     
     BANKSEL PORTA
     BSF	    CCP2CON, CCP2M3
